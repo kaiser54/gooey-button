@@ -138,6 +138,7 @@ function App() {
         <div className={reduceMotion ? "gooey gooey-flat" : "gooey"}>
           <motion.div
             className="blob"
+            initial={false}
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? 0 : IDLE_X,
@@ -146,6 +147,7 @@ function App() {
           />
           <motion.div
             className="blob blob-cancel"
+            initial={false}
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? TARGET_X : IDLE_X,
@@ -167,6 +169,7 @@ function App() {
             aria-expanded={open}
             tabIndex={open ? -1 : 0}
             aria-hidden={open}
+            initial={false}
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? 0 : IDLE_X,
@@ -192,6 +195,7 @@ function App() {
             className="hit hit-confirm"
             tabIndex={open ? 0 : -1}
             aria-hidden={!open}
+            initial={false}
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? 0 : IDLE_X,
@@ -213,6 +217,7 @@ function App() {
             className="hit hit-cancel"
             tabIndex={open ? 0 : -1}
             aria-hidden={!open}
+            initial={false}
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? TARGET_X : IDLE_X,

@@ -3,24 +3,20 @@
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  position: relative;
-  overflow: hidden;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-.hint {
+.sr-only {
   position: absolute;
-  top: max(2.5rem, calc(env(safe-area-inset-top) + 1.25rem));
-  margin: 0;
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  font-size: 1.05rem;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-  color: #c4a882;
-  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .goo-defs {
@@ -30,63 +26,104 @@
   overflow: hidden;
 }
 
-.play {
-  width: min(92vw, 48rem);
-  height: min(72svh, 32rem);
-  border-radius: 2rem;
-}
-
-.play:focus-within {
-  outline: 2px solid #c4a882;
-  outline-offset: 6px;
+.cluster {
+  position: relative;
+  flex-shrink: 0;
+  height: 56px;
+  overflow: visible;
 }
 
 .gooey {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4.5rem;
-  width: 100%;
-  height: 100%;
-  filter: url("#goo");
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  filter: url("#goo") drop-shadow(0 10px 18px rgba(28, 28, 36, 0.12));
+}
+
+.gooey-flat {
+  filter: drop-shadow(0 10px 18px rgba(28, 28, 36, 0.12));
 }
 
 .blob {
-  appearance: none;
-  border: 0;
-  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 56px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  transform-origin: center;
+}
+
+.blob-cancel,
+.hit-cancel {
+  transform-origin: left center;
+}
+
+.hits {
+  position: absolute;
+  inset: 0;
+}
+
+.hit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 56px;
   margin: 0;
-  border-radius: 50%;
-  background: #f3e0c2;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  display: grid;
+  place-items: center;
 }
 
-.blob:active {
-  cursor: grabbing;
-}
-
-.blob:focus {
+.hit:focus {
   outline: none;
 }
 
-.blob:focus-visible {
-  outline: none;
+.hit:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 4px;
 }
 
-.blob-lg {
-  width: 8.5rem;
-  height: 8.5rem;
+.hit-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  pointer-events: none;
 }
 
-.blob-sm {
-  width: 5.75rem;
-  height: 5.75rem;
+.hit-delete,
+.hit-confirm {
+  color: #e81111;
 }
 
-body[data-dragging] .blob {
-  will-change: transform;
+.hit-cancel {
+  color: #111;
+}
+
+.trash-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gooey {
+    filter: drop-shadow(0 10px 18px rgba(28, 28, 36, 0.12));
+  }
 }

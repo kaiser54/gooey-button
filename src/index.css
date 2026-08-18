@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,
@@ -17,12 +17,8 @@ body,
 body {
   position: relative;
   margin: 0;
-  background: #1a0f0c;
-  color: #f3e0c2;
+  background: #e8e8ea;
+  color: #111;
   -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
-}
-
-body[data-dragging] {
-  user-select: none;
 }

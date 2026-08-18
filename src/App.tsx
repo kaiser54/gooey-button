@@ -2,85 +2,112 @@ import {
   motion,
   useMotionValue,
   useReducedMotion,
-  type MotionValue,
+  useTransform,
+  type Transition,
 } from "motion/react"
-import { useRef, type KeyboardEvent, type RefObject } from "react"
+import { useEffect, useRef, useState } from "react"
 import "./App.css"
 
-const dragTransition = { bounceStiffness: 180, bounceDamping: 18 }
+const SIZE = 56
+const PILL_W = 156
+const GAP = 30
+const CLUSTER_OPEN = PILL_W * 2 + GAP
+const TARGET_X = PILL_W + GAP
+const IDLE_X = (CLUSTER_OPEN - SIZE) / 2
+const CANCEL_SCALE_FROM = 0.3
 
-function nudge(
-  event: KeyboardEvent<HTMLButtonElement>,
-  x: MotionValue<number>,
-  y: MotionValue<number>,
-  bounds: HTMLElement | null,
-) {
-  const step = event.shiftKey ? 24 : 10
-  const delta: Record<string, [number, number]> = {
-    ArrowLeft: [-step, 0],
-    ArrowRight: [step, 0],
-    ArrowUp: [0, -step],
-    ArrowDown: [0, step],
-  }
-  const next = delta[event.key]
-  if (!next || !bounds) return
-
-  event.preventDefault()
-
-  const area = bounds.getBoundingClientRect()
-  const blob = event.currentTarget.getBoundingClientRect()
-  const dx = Math.min(Math.max(next[0], area.left - blob.left), area.right - blob.right)
-  const dy = Math.min(Math.max(next[1], area.top - blob.top), area.bottom - blob.bottom)
-
-  x.set(x.get() + dx)
-  y.set(y.get() + dy)
+const springOpen: Transition = {
+  type: "spring",
+  duration: 1.5,
+  bounce: 0.4,
 }
 
-function Drop({
-  label,
-  size,
-  constraintsRef,
-  reduceMotion,
-}: {
-  label: string
-  size: "lg" | "sm"
-  constraintsRef: RefObject<HTMLDivElement | null>
-  reduceMotion: boolean | null
-}) {
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
+const springClose: Transition = {
+  type: "spring",
+  duration: 1.25,
+  bounce: 0.35,
+}
 
+const reduced: Transition = {
+  duration: 0.2,
+  ease: [0.23, 1, 0.32, 1],
+}
+
+function TrashIcon() {
   return (
-    <motion.button
-      type="button"
-      className={`blob blob-${size}`}
-      aria-label={label}
-      style={{ x, y }}
-      drag
-      dragConstraints={constraintsRef}
-      dragElastic={0.12}
-      dragMomentum={!reduceMotion}
-      dragTransition={dragTransition}
-      whileTap={{ scale: 0.97 }}
-      whileDrag={reduceMotion ? undefined : { scale: 1.05 }}
-      onDragStart={() => {
-        document.body.dataset.dragging = ""
-      }}
-      onDragEnd={() => {
-        delete document.body.dataset.dragging
-      }}
-      onKeyDown={(event) => nudge(event, x, y, constraintsRef.current)}
-    />
+    <svg
+      className="trash-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M5 7h14" />
+      <path d="M9.5 7V5.8c0-.4.3-.8.8-.8h3.4c.4 0 .8.4.8.8V7" />
+      <path d="M7 7l.8 12.2c.1.9.8 1.6 1.7 1.6h5c.9 0 1.6-.7 1.7-1.6L17 7" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
   )
 }
 
 function App() {
-  const playRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
   const reduceMotion = useReducedMotion()
+  const deleteRef = useRef<HTMLButtonElement>(null)
+  const confirmRef = useRef<HTMLButtonElement>(null)
+  const wasOpen = useRef(false)
+  const openedByPointer = useRef(false)
+  const cancelX = useMotionValue(IDLE_X)
+  const fadeX = IDLE_X + (TARGET_X - IDLE_X) * 0.4
+  const blurPx = useTransform(
+    cancelX,
+    [IDLE_X, (IDLE_X + TARGET_X) / 2, TARGET_X],
+    [0, reduceMotion ? 0 : 2, 0],
+  )
+  const contentFilter = useTransform(blurPx, (value) =>
+    value < 0.12 ? "none" : `blur(${value}px)`,
+  )
+  const labelOpacity = useTransform(cancelX, [IDLE_X, fadeX, TARGET_X], [0, 1, 1])
+  const deleteOpacity = useTransform(cancelX, [IDLE_X, fadeX], [1, 0])
+
+  const transition = reduceMotion ? reduced : open ? springOpen : springClose
+  const cancelTransition: Transition = reduceMotion
+    ? reduced
+    : {
+        width: transition,
+        x: {
+          ...transition,
+          delay: open ? 0.04 : 0,
+        },
+        scale: {
+          ...transition,
+          delay: open ? 0.04 : 0,
+        },
+      }
+
+  useEffect(() => {
+    if (open) {
+      wasOpen.current = true
+      if (!openedByPointer.current) confirmRef.current?.focus()
+    } else if (wasOpen.current) {
+      deleteRef.current?.focus()
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [open])
+
+  const close = () => setOpen(false)
+  const cancelScale = open ? 1 : CANCEL_SCALE_FROM
 
   return (
     <main className="stage">
-      <h1 className="hint">Pull the drops until they kiss</h1>
+      <h1 className="sr-only">Delete</h1>
 
       <svg className="goo-defs" aria-hidden="true" focusable="false">
         <defs>
@@ -94,33 +121,114 @@ function App() {
           >
             <feGaussianBlur
               in="SourceGraphic"
-              stdDeviation="18"
+              stdDeviation="8"
               result="blur"
             />
             <feColorMatrix
               in="blur"
               mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -12"
               result="goo"
             />
           </filter>
         </defs>
       </svg>
 
-      <div ref={playRef} className="play">
-        <div className="gooey">
-          <Drop
-            label="Large drop"
-            size="lg"
-            constraintsRef={playRef}
-            reduceMotion={reduceMotion}
+      <div className="cluster" style={{ width: CLUSTER_OPEN }}>
+        <div className={reduceMotion ? "gooey gooey-flat" : "gooey"}>
+          <motion.div
+            className="blob"
+            animate={{
+              width: open ? PILL_W : SIZE,
+              x: open ? 0 : IDLE_X,
+            }}
+            transition={transition}
           />
-          <Drop
-            label="Small drop"
-            size="sm"
-            constraintsRef={playRef}
-            reduceMotion={reduceMotion}
+          <motion.div
+            className="blob blob-cancel"
+            animate={{
+              width: open ? PILL_W : SIZE,
+              x: open ? TARGET_X : IDLE_X,
+              scale: cancelScale,
+            }}
+            transition={cancelTransition}
+            onUpdate={(latest) => {
+              if (typeof latest.x === "number") cancelX.set(latest.x)
+            }}
           />
+        </div>
+
+        <div className="hits">
+          <motion.button
+            ref={deleteRef}
+            type="button"
+            className="hit hit-delete"
+            aria-label="Delete"
+            aria-expanded={open}
+            tabIndex={open ? -1 : 0}
+            aria-hidden={open}
+            animate={{
+              width: open ? PILL_W : SIZE,
+              x: open ? 0 : IDLE_X,
+            }}
+            transition={transition}
+            style={{ pointerEvents: open ? "none" : "auto" }}
+            onClick={(event) => {
+              openedByPointer.current = event.detail > 0
+              setOpen(true)
+            }}
+          >
+            <motion.span
+              className="hit-content"
+              style={{ filter: contentFilter, opacity: deleteOpacity }}
+            >
+              <TrashIcon />
+            </motion.span>
+          </motion.button>
+
+          <motion.button
+            ref={confirmRef}
+            type="button"
+            className="hit hit-confirm"
+            tabIndex={open ? 0 : -1}
+            aria-hidden={!open}
+            animate={{
+              width: open ? PILL_W : SIZE,
+              x: open ? 0 : IDLE_X,
+            }}
+            transition={transition}
+            style={{ pointerEvents: open ? "auto" : "none" }}
+            onClick={close}
+          >
+            <motion.span
+              className="hit-content"
+              style={{ filter: contentFilter, opacity: labelOpacity }}
+            >
+              Confirm
+            </motion.span>
+          </motion.button>
+
+          <motion.button
+            type="button"
+            className="hit hit-cancel"
+            tabIndex={open ? 0 : -1}
+            aria-hidden={!open}
+            animate={{
+              width: open ? PILL_W : SIZE,
+              x: open ? TARGET_X : IDLE_X,
+              scale: cancelScale,
+            }}
+            transition={cancelTransition}
+            style={{ pointerEvents: open ? "auto" : "none" }}
+            onClick={close}
+          >
+            <motion.span
+              className="hit-content"
+              style={{ filter: contentFilter, opacity: labelOpacity }}
+            >
+              Cancel
+            </motion.span>
+          </motion.button>
         </div>
       </div>
     </main>

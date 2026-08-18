@@ -24,14 +24,14 @@ const CANCEL_SCALE_FROM = 0.3
 
 const springOpen: Transition = {
   type: "spring",
-  duration: 1.5,
-  bounce: 0.4,
+  duration: 1,
+  bounce: 0.35,
 }
 
 const springClose: Transition = {
   type: "spring",
-  duration: 1.25,
-  bounce: 0.35,
+  duration: 1,
+  bounce: 0.3,
 }
 
 const reduced: Transition = {
@@ -74,16 +74,36 @@ function App() {
   const openedByPointer = useRef(false)
   const cancelX = useMotionValue(IDLE_X)
   const fadeX = IDLE_X + (TARGET_X - IDLE_X) * 0.4
+  const blurAmount = reduceMotion ? 0 : 10
   const blurPx = useTransform(
     cancelX,
-    [IDLE_X, (IDLE_X + TARGET_X) / 2, TARGET_X],
-    [0, reduceMotion ? 0 : 2, 0],
+    [
+      IDLE_X,
+      IDLE_X + (TARGET_X - IDLE_X) * 0.18,
+      (IDLE_X + TARGET_X) / 2,
+      IDLE_X + (TARGET_X - IDLE_X) * 0.82,
+      TARGET_X,
+    ],
+    [0, blurAmount * 0.55, blurAmount, blurAmount * 0.55, 0],
   )
   const contentFilter = useTransform(blurPx, (value) =>
     value < 0.12 ? "none" : `blur(${value}px)`,
   )
   const labelOpacity = useTransform(cancelX, [IDLE_X, fadeX, TARGET_X], [0, 1, 1])
-  const deleteOpacity = useTransform(cancelX, [IDLE_X, fadeX], [1, 0])
+  const deleteOpacity = useTransform(
+    cancelX,
+    [IDLE_X, IDLE_X + (TARGET_X - IDLE_X) * 0.72, TARGET_X],
+    [1, 1, 0],
+  )
+  const fadeBlurPx = useTransform(deleteOpacity, [1, 0], [0, blurAmount])
+  const iconBlurPx = useTransform([blurPx, fadeBlurPx], (latest) => {
+    const morph = Number(latest[0])
+    const fade = Number(latest[1])
+    return Math.max(morph, fade)
+  })
+  const iconFilter = useTransform(iconBlurPx, (value) =>
+    value < 0.12 ? "none" : `blur(${value}px)`,
+  )
 
   const transition = reduceMotion ? reduced : open ? springOpen : springClose
   const layoutTransition: Transition = reduceMotion
@@ -229,14 +249,7 @@ function App() {
               setPressed(null)
               setOpen(true)
             }}
-          >
-            <motion.span
-              className="hit-content"
-              style={{ filter: contentFilter, opacity: deleteOpacity }}
-            >
-              <TrashIcon />
-            </motion.span>
-          </motion.button>
+          />
 
           <motion.button
             ref={confirmRef}
@@ -256,11 +269,25 @@ function App() {
             onClick={close}
           >
             <motion.span
-              className="hit-content"
-              style={{ filter: contentFilter, opacity: labelOpacity }}
+              className="flow-icon"
+              aria-hidden="true"
+              style={{ filter: iconFilter, opacity: deleteOpacity }}
             >
-              Confirm
+              <TrashIcon />
             </motion.span>
+            <motion.div className="hit-blur" style={{ filter: contentFilter }}>
+              <div className="hit-clip">
+                <motion.span
+                  className="hit-content"
+                  initial={false}
+                  animate={{ x: open ? 0 : 22 }}
+                  transition={layoutTransition}
+                  style={{ opacity: labelOpacity }}
+                >
+                  Confirm
+                </motion.span>
+              </div>
+            </motion.div>
           </motion.button>
 
           <motion.button
@@ -279,12 +306,16 @@ function App() {
             {...bindPress("cancel")}
             onClick={close}
           >
-            <motion.span
-              className="hit-content"
-              style={{ filter: contentFilter, opacity: labelOpacity }}
-            >
-              Cancel
-            </motion.span>
+            <motion.div className="hit-blur" style={{ filter: contentFilter }}>
+              <div className="hit-clip">
+                <motion.span
+                  className="hit-content"
+                  style={{ opacity: labelOpacity }}
+                >
+                  Cancel
+                </motion.span>
+              </div>
+            </motion.div>
           </motion.button>
         </div>
       </div>

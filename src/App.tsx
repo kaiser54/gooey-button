@@ -5,7 +5,13 @@ import {
   useTransform,
   type Transition,
 } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react"
 import "./App.css"
 
 const SIZE = 56
@@ -33,6 +39,13 @@ const reduced: Transition = {
   ease: [0.23, 1, 0.32, 1],
 }
 
+const press: Transition = {
+  duration: 0.12,
+  ease: [0.23, 1, 0.32, 1],
+}
+
+const PRESS_IN = 0.97
+
 function TrashIcon() {
   return (
     <svg
@@ -51,6 +64,9 @@ function TrashIcon() {
 
 function App() {
   const [open, setOpen] = useState(false)
+  const [pressed, setPressed] = useState<"delete" | "confirm" | "cancel" | null>(
+    null,
+  )
   const reduceMotion = useReducedMotion()
   const deleteRef = useRef<HTMLButtonElement>(null)
   const confirmRef = useRef<HTMLButtonElement>(null)
@@ -70,6 +86,13 @@ function App() {
   const deleteOpacity = useTransform(cancelX, [IDLE_X, fadeX], [1, 0])
 
   const transition = reduceMotion ? reduced : open ? springOpen : springClose
+  const layoutTransition: Transition = reduceMotion
+    ? reduced
+    : {
+        width: transition,
+        x: transition,
+        scale: press,
+      }
   const cancelTransition: Transition = reduceMotion
     ? reduced
     : {
@@ -78,10 +101,13 @@ function App() {
           ...transition,
           delay: open ? 0.04 : 0,
         },
-        scale: {
-          ...transition,
-          delay: open ? 0.04 : 0,
-        },
+        scale:
+          pressed === "cancel"
+            ? press
+            : {
+                ...transition,
+                delay: open ? 0.04 : 0,
+              },
       }
 
   useEffect(() => {
@@ -102,8 +128,27 @@ function App() {
     return () => window.removeEventListener("keydown", onKey)
   }, [open])
 
-  const close = () => setOpen(false)
-  const cancelScale = open ? 1 : CANCEL_SCALE_FROM
+  const close = () => {
+    setPressed(null)
+    setOpen(false)
+  }
+  const pressScale = (key: "delete" | "confirm" | "cancel") =>
+    pressed === key ? PRESS_IN : 1
+  const cancelScale = (open ? 1 : CANCEL_SCALE_FROM) * pressScale("cancel")
+
+  const bindPress = (key: "delete" | "confirm" | "cancel") => ({
+    onPointerDown: (event: ReactPointerEvent<HTMLButtonElement>) => {
+      event.currentTarget.setPointerCapture(event.pointerId)
+      setPressed(key)
+    },
+    onPointerUp: () => setPressed(null),
+    onPointerCancel: () => setPressed(null),
+    onKeyDown: (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (event.repeat) return
+      if (event.key === " " || event.key === "Enter") setPressed(key)
+    },
+    onKeyUp: () => setPressed(null),
+  })
 
   return (
     <main className="stage">
@@ -142,8 +187,9 @@ function App() {
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? 0 : IDLE_X,
+              scale: pressScale(open ? "confirm" : "delete"),
             }}
-            transition={transition}
+            transition={layoutTransition}
           />
           <motion.div
             className="blob blob-cancel"
@@ -173,11 +219,14 @@ function App() {
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? 0 : IDLE_X,
+              scale: pressScale("delete"),
             }}
-            transition={transition}
+            transition={layoutTransition}
             style={{ pointerEvents: open ? "none" : "auto" }}
+            {...bindPress("delete")}
             onClick={(event) => {
               openedByPointer.current = event.detail > 0
+              setPressed(null)
               setOpen(true)
             }}
           >
@@ -199,9 +248,11 @@ function App() {
             animate={{
               width: open ? PILL_W : SIZE,
               x: open ? 0 : IDLE_X,
+              scale: pressScale("confirm"),
             }}
-            transition={transition}
+            transition={layoutTransition}
             style={{ pointerEvents: open ? "auto" : "none" }}
+            {...bindPress("confirm")}
             onClick={close}
           >
             <motion.span
@@ -225,6 +276,7 @@ function App() {
             }}
             transition={cancelTransition}
             style={{ pointerEvents: open ? "auto" : "none" }}
+            {...bindPress("cancel")}
             onClick={close}
           >
             <motion.span

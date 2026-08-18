@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+.root {
+  isolation: isolate;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  background: #1a0f0c;
+  color: #f3e0c2;
+  -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
+}
+
+body[data-dragging] {
+  user-select: none;
+}

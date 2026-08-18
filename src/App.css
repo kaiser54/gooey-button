@@ -1,0 +1,92 @@
+.stage {
+  min-height: 100svh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.hint {
+  position: absolute;
+  top: max(2.5rem, calc(env(safe-area-inset-top) + 1.25rem));
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: #c4a882;
+  pointer-events: none;
+}
+
+.goo-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.play {
+  width: min(92vw, 48rem);
+  height: min(72svh, 32rem);
+  border-radius: 2rem;
+}
+
+.play:focus-within {
+  outline: 2px solid #c4a882;
+  outline-offset: 6px;
+}
+
+.gooey {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4.5rem;
+  width: 100%;
+  height: 100%;
+  filter: url("#goo");
+}
+
+.blob {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: #f3e0c2;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.blob:active {
+  cursor: grabbing;
+}
+
+.blob:focus {
+  outline: none;
+}
+
+.blob:focus-visible {
+  outline: none;
+}
+
+.blob-lg {
+  width: 8.5rem;
+  height: 8.5rem;
+}
+
+.blob-sm {
+  width: 5.75rem;
+  height: 5.75rem;
+}
+
+body[data-dragging] .blob {
+  will-change: transform;
+}

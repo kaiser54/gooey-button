@@ -1,3 +1,4 @@
+import { Slider } from "@base-ui/react/slider"
 import {
   motion,
   useMotionValue,
@@ -22,16 +23,13 @@ const TARGET_X = PILL_W + GAP
 const IDLE_X = (CLUSTER_OPEN - SIZE) / 2
 const CANCEL_SCALE_FROM = 0.3
 
-const springOpen: Transition = {
-  type: "spring",
-  duration: 1.2,
-  bounce: 0.35,
-}
+const SPEED = {
+  min: { open: 1.2, close: 1, delay: 0.04 },
+  max: { open: 3.5, close: 2.9, delay: 0.12 },
+} as const
 
-const springClose: Transition = {
-  type: "spring",
-  duration: 1,
-  bounce: 0.3,
+function mix(from: number, to: number, t: number) {
+  return from + (to - from) * t
 }
 
 const reduced: Transition = {
@@ -54,6 +52,7 @@ function TrashIcon() {
 
 function App() {
   const [open, setOpen] = useState(false)
+  const [speedT, setSpeedT] = useState(0)
   const [pressed, setPressed] = useState<"delete" | "confirm" | "cancel" | null>(
     null,
   )
@@ -95,6 +94,19 @@ function App() {
     value < 0.12 ? "none" : `blur(${value}px)`,
   )
 
+  const openDuration = mix(SPEED.min.open, SPEED.max.open, speedT)
+  const closeDuration = mix(SPEED.min.close, SPEED.max.close, speedT)
+  const cancelDelay = mix(SPEED.min.delay, SPEED.max.delay, speedT)
+  const springOpen: Transition = {
+    type: "spring",
+    duration: openDuration,
+    bounce: 0.35,
+  }
+  const springClose: Transition = {
+    type: "spring",
+    duration: closeDuration,
+    bounce: 0.3,
+  }
   const transition = reduceMotion ? reduced : open ? springOpen : springClose
   const layoutTransition: Transition = reduceMotion
     ? reduced
@@ -109,14 +121,14 @@ function App() {
         width: transition,
         x: {
           ...transition,
-          delay: open ? 0.04 : 0,
+          delay: open ? cancelDelay : 0,
         },
         scale:
           pressed === "cancel"
             ? press
             : {
                 ...transition,
-                delay: open ? 0.04 : 0,
+                delay: open ? cancelDelay : 0,
               },
       }
 
@@ -309,6 +321,37 @@ function App() {
           </motion.button>
         </div>
       </div>
+
+      <Slider.Root
+        className="speed"
+        value={speedT}
+        min={0}
+        max={1}
+        step={0.01}
+        onValueChange={setSpeedT}
+      >
+        <div className="speed-meta">
+          <span>Normal</span>
+          <Slider.Label className="sr-only">Animation speed</Slider.Label>
+          <Slider.Value className="speed-value">
+            {(_formatted, values) =>
+              `${mix(SPEED.min.open, SPEED.max.open, values[0]).toFixed(1)}s`
+            }
+          </Slider.Value>
+          <span>Slow</span>
+        </div>
+        <Slider.Control className="speed-control">
+          <Slider.Track className="speed-track">
+            <Slider.Indicator className="speed-indicator" />
+            <Slider.Thumb
+              className="speed-thumb"
+              getAriaValueText={(_formatted, value) =>
+                `${mix(SPEED.min.open, SPEED.max.open, value).toFixed(1)} seconds`
+              }
+            />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
     </main>
   )
 }

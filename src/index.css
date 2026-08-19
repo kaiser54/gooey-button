@@ -10,6 +10,13 @@ body,
   min-height: 100%;
 }
 
+/* :root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+} */
+
 .root {
   isolation: isolate;
 }
@@ -17,8 +24,7 @@ body,
 body {
   position: relative;
   margin: 0;
-  background: #e8e8ea;
+  background: #e8e8ea89;
   color: #111;
-  -webkit-font-smoothing: antialiased;
-  touch-action: manipulation;
+  /* touch-action: manipulation; */
 }

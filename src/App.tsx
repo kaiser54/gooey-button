@@ -16,7 +16,7 @@ import "./App.css"
 
 const SIZE = 56
 const PILL_W = 156
-const GAP = 30
+const GAP = 16
 const CLUSTER_OPEN = PILL_W * 2 + GAP
 const TARGET_X = PILL_W + GAP
 const IDLE_X = (CLUSTER_OPEN - SIZE) / 2
@@ -24,7 +24,7 @@ const CANCEL_SCALE_FROM = 0.3
 
 const springOpen: Transition = {
   type: "spring",
-  duration: 1,
+  duration: 1.2,
   bounce: 0.35,
 }
 
@@ -48,17 +48,7 @@ const PRESS_IN = 0.97
 
 function TrashIcon() {
   return (
-    <svg
-      className="trash-icon"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M5 7h14" />
-      <path d="M9.5 7V5.8c0-.4.3-.8.8-.8h3.4c.4 0 .8.4.8.8V7" />
-      <path d="M7 7l.8 12.2c.1.9.8 1.6 1.7 1.6h5c.9 0 1.6-.7 1.7-1.6L17 7" />
-      <path d="M10 11v6M14 11v6" />
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.1" d="M4 7h16m-10 4v6m4-6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" /></svg>
   )
 }
 

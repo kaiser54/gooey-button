@@ -38,11 +38,11 @@
   inset: 0;
   overflow: visible;
   pointer-events: none;
-  filter: url("#goo") drop-shadow(0 10px 18px rgba(28, 28, 36, 0.12));
+  filter: url("#goo") drop-shadow(0 3px 8px rgba(28, 28, 36, 0.06));
 }
 
 .gooey-flat {
-  filter: drop-shadow(0 10px 18px rgba(28, 28, 36, 0.12));
+  filter: drop-shadow(0 3px 8px rgba(28, 28, 36, 0.06));
 }
 
 .blob {
@@ -78,10 +78,9 @@
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Inter, ui-sans-serif, sans-serif;
   font-size: 1.0625rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-weight: 600;
 }
 
 .hit:focus {
@@ -145,6 +144,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gooey {
-    filter: drop-shadow(0 10px 18px rgba(28, 28, 36, 0.12));
+    filter: drop-shadow(0 3px 8px rgba(28, 28, 36, 0.06));
   }
 }

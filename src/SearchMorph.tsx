@@ -15,12 +15,22 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react"
 import { CONTROL, MOTION } from "./design-system"
-import { mix, SPEED, useSlowMotion } from "./slow-motion"
+import { mix, SPEED, SLOW_SCALE, useSlowMotion } from "./slow-motion"
 
 const SIZE = CONTROL.size
 const GAP = CONTROL.gap
 const TABS_X = SIZE + GAP
 const PRESS_IN = MOTION.pressScale
+
+const SEARCH_SPEED = {
+  min: { open: 0.7, close: 0.58, bounceOpen: 0.35, bounceClose: 0.3 },
+  max: {
+    open: 0.7 * SLOW_SCALE,
+    close: 0.58 * SLOW_SCALE,
+    bounceOpen: SPEED.max.bounceOpen,
+    bounceClose: SPEED.max.bounceClose,
+  },
+}
 
 function clamp01(value: number) {
   return value < 0 ? 0 : value > 1 ? 1 : value
@@ -107,8 +117,8 @@ export function SearchMorph() {
   })
   const blurAmount = reduceMotion ? 0 : MOTION.blur
   const springDuration = mix(
-    open ? SPEED.min.open : SPEED.min.close,
-    open ? SPEED.max.open : SPEED.max.close,
+    open ? SEARCH_SPEED.min.open : SEARCH_SPEED.min.close,
+    open ? SEARCH_SPEED.max.open : SEARCH_SPEED.max.close,
     speedT,
   )
   const blurPx = useTransform(
@@ -137,13 +147,13 @@ export function SearchMorph() {
 
   const springOpen: Transition = {
     type: "spring",
-    duration: mix(SPEED.min.open, SPEED.max.open, speedT),
-    bounce: mix(SPEED.min.bounceOpen, SPEED.max.bounceOpen, speedT),
+    duration: mix(SEARCH_SPEED.min.open, SEARCH_SPEED.max.open, speedT),
+    bounce: mix(SEARCH_SPEED.min.bounceOpen, SEARCH_SPEED.max.bounceOpen, speedT),
   }
   const springClose: Transition = {
     type: "spring",
-    duration: mix(SPEED.min.close, SPEED.max.close, speedT),
-    bounce: mix(SPEED.min.bounceClose, SPEED.max.bounceClose, speedT),
+    duration: mix(SEARCH_SPEED.min.close, SEARCH_SPEED.max.close, speedT),
+    bounce: mix(SEARCH_SPEED.min.bounceClose, SEARCH_SPEED.max.bounceClose, speedT),
   }
   const morphTransition = reduceMotion ? reduced : open ? springOpen : springClose
   const press: Transition = {

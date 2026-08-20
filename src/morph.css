@@ -112,7 +112,8 @@
 }
 
 .hit-delete,
-.hit-confirm {
+.hit-confirm,
+.tabs-ink {
   color: var(--color-danger);
 }
 
@@ -212,9 +213,41 @@
   box-sizing: border-box;
 }
 
+.tabs-track {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  width: max-content;
+}
+
+.tabs-clip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-chip);
+  pointer-events: none;
+}
+
+.tabs-ink {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  width: max-content;
+}
+
+.tabs-ink .tab {
+  color: inherit;
+  cursor: default;
+}
+
 .tab {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   display: flex;
   flex: 0 0 auto;
   align-items: stretch;
@@ -245,29 +278,12 @@
   border-radius: inherit;
 }
 
-.tab-chip {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--color-chip);
-  pointer-events: none;
-}
-
-.tab-label > :not(.tab-chip) {
-  position: relative;
-  z-index: 1;
-}
-
 .tab:focus {
   outline: none;
 }
 
 .tab:focus-visible .tab-label {
   box-shadow: inset 0 0 0 1.5px var(--color-control);
-}
-
-.tab-on {
-  color: var(--color-danger);
 }
 
 .tab-glyph {

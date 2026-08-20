@@ -23,10 +23,10 @@ const TABS_X = SIZE + GAP
 const PRESS_IN = MOTION.pressScale
 
 const SEARCH_SPEED = {
-  min: { open: 0.7, close: 0.58, bounceOpen: 0.35, bounceClose: 0.3 },
+  min: { open: 0.9, close: 0.7, bounceOpen: 0.35, bounceClose: 0.3 },
   max: {
-    open: 0.7 * SLOW_SCALE,
-    close: 0.58 * SLOW_SCALE,
+    open: 0.9 * SLOW_SCALE,
+    close: 0.7 * SLOW_SCALE,
     bounceOpen: SPEED.max.bounceOpen,
     bounceClose: SPEED.max.bounceClose,
   },
@@ -91,19 +91,29 @@ function HeartIcon() {
   )
 }
 
+const TABS = [
+  { id: "popular", label: "Popular", Icon: FlameIcon },
+  { id: "favorites", label: "Favorites", Icon: HeartIcon },
+] as const
+
+type TabId = (typeof TABS)[number]["id"]
+
 export function SearchMorph() {
   const { speedT, scale } = useSlowMotion()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
-  const [tab, setTab] = useState<"popular" | "favorites">("popular")
+  const [tab, setTab] = useState<TabId>("popular")
   const [pressed, setPressed] = useState<"search" | "close" | null>(null)
   const reduceMotion = useReducedMotion()
   const searchRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const tabsInnerRef = useRef<HTMLDivElement>(null)
+  const tabsTrackRef = useRef<HTMLDivElement>(null)
+  const tabRefs = useRef<Partial<Record<TabId, HTMLButtonElement | null>>>({})
+  const [chip, setChip] = useState<{ x: number; width: number } | null>(null)
   const wasOpen = useRef(false)
   const [pillW, setPillW] = useState<number>(SIZE)
-  const [ready, setReady] = useState(false)
+  const [morphing, setMorphing] = useState(false)
   const openRef = useRef(false)
   const pillWMv = useMotionValue<number>(SIZE)
   const tabsWidth = useMotionValue<number>(SIZE)
@@ -167,13 +177,17 @@ export function SearchMorph() {
         duration: MOTION.chipDuration * scale,
         bounce: MOTION.chipBounce,
       }
-  const layoutTransition: Transition = !ready
-    ? instant
-    : reduceMotion
-      ? reduced
-      : {
+  const layoutTransition: Transition = reduceMotion
+    ? reduced
+    : morphing
+      ? {
           width: morphTransition,
           x: morphTransition,
+          scale: press,
+        }
+      : {
+          width: instant,
+          x: instant,
           scale: press,
         }
 
@@ -188,13 +202,27 @@ export function SearchMorph() {
       if (width < SIZE) return
       setPillW(width)
       pillWMv.set(width)
-      setReady(true)
+      tabsWidth.set(width)
     }
     apply()
     const observer = new ResizeObserver(apply)
     observer.observe(el)
     return () => observer.disconnect()
   }, [pillWMv])
+
+  useLayoutEffect(() => {
+    const track = tabsTrackRef.current
+    const el = tabRefs.current[tab]
+    if (!track || !el) return
+    const measure = () => {
+      setChip({ x: el.offsetLeft, width: el.offsetWidth })
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(track)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [tab])
 
   useEffect(() => {
     if (open) {
@@ -208,7 +236,10 @@ export function SearchMorph() {
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false)
+      if (event.key === "Escape") {
+        setMorphing(true)
+        setOpen(false)
+      }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
@@ -216,6 +247,7 @@ export function SearchMorph() {
 
   const close = () => {
     setPressed(null)
+    setMorphing(true)
     setOpen(false)
   }
   const pressScale = (key: "search" | "close") =>
@@ -286,6 +318,7 @@ export function SearchMorph() {
           onUpdate={(latest) => {
             if (typeof latest.width === "number") tabsWidth.set(latest.width)
           }}
+          onAnimationComplete={() => setMorphing(false)}
         />
       </div>
 
@@ -305,6 +338,7 @@ export function SearchMorph() {
           {...bindPress("search")}
           onClick={() => {
             setPressed(null)
+            setMorphing(true)
             setOpen(true)
           }}
         />
@@ -366,46 +400,51 @@ export function SearchMorph() {
                 className="tabs-inner"
                 style={{ opacity: tabsOpacity }}
               >
-                <button
-                  type="button"
-                  className={tab === "popular" ? "tab tab-on" : "tab"}
-                  tabIndex={open ? -1 : 0}
-                  aria-pressed={tab === "popular"}
-                  onClick={() => setTab("popular")}
-                >
-                  <span className="tab-label">
-                    {tab === "popular" && (
-                      <motion.span
-                        className="tab-chip"
-                        layoutId="tab-chip"
+                <div ref={tabsTrackRef} className="tabs-track">
+                  {TABS.map(({ id, label, Icon }) => (
+                    <button
+                      key={id}
+                      ref={(node) => {
+                        tabRefs.current[id] = node
+                      }}
+                      type="button"
+                      className="tab"
+                      tabIndex={open ? -1 : 0}
+                      aria-pressed={tab === id}
+                      onClick={() => setTab(id)}
+                    >
+                      <span className="tab-label">
+                        <Icon />
+                        {label}
+                      </span>
+                    </button>
+                  ))}
+                  {chip && (
+                    <motion.div
+                      className="tabs-clip"
+                      initial={false}
+                      animate={{ x: chip.x, width: chip.width }}
+                      transition={chipTransition}
+                      aria-hidden="true"
+                    >
+                      <motion.div
+                        className="tabs-ink"
                         initial={false}
+                        animate={{ x: -chip.x }}
                         transition={chipTransition}
-                      />
-                    )}
-                    <FlameIcon />
-                    Popular
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  className={tab === "favorites" ? "tab tab-on" : "tab"}
-                  tabIndex={open ? -1 : 0}
-                  aria-pressed={tab === "favorites"}
-                  onClick={() => setTab("favorites")}
-                >
-                  <span className="tab-label">
-                    {tab === "favorites" && (
-                      <motion.span
-                        className="tab-chip"
-                        layoutId="tab-chip"
-                        initial={false}
-                        transition={chipTransition}
-                      />
-                    )}
-                    <HeartIcon />
-                    Favorites
-                  </span>
-                </button>
+                      >
+                        {TABS.map(({ id, label, Icon }) => (
+                          <div key={id} className="tab">
+                            <span className="tab-label">
+                              <Icon />
+                              {label}
+                            </span>
+                          </div>
+                        ))}
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </div>
               </motion.div>
             </div>
           </motion.div>

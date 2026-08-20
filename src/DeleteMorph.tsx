@@ -222,7 +222,7 @@ export function DeleteMorph() {
         <motion.button
           ref={deleteRef}
           type="button"
-          className="hit hit-delete"
+          className="hit hit-delete text-danger"
           aria-label="Delete"
           aria-expanded={open}
           tabIndex={open ? -1 : 0}
@@ -246,7 +246,7 @@ export function DeleteMorph() {
         <motion.button
           ref={confirmRef}
           type="button"
-          className="hit hit-confirm"
+          className="hit hit-confirm text-danger"
           tabIndex={open ? 0 : -1}
           aria-hidden={!open}
           initial={false}

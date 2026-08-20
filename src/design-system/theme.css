@@ -14,7 +14,7 @@
   --color-pill: #ffffff;
   --color-line: #d2d2d7;
   --color-stroke: rgb(29 29 31 / 18%);
-  --color-chip: rgb(232 17 17 / 12%);
+  --color-chip: color-mix(in srgb, var(--color-danger) 12%, transparent);
   --color-track: #e8e8ed;
 
   --radius-well: 1rem;

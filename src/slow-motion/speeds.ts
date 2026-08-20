@@ -1,5 +1,5 @@
 export const SPEED = {
-  min: { open: 1.2, close: 1, bounceOpen: 0.35, bounceClose: 0.3 },
+  min: { open: 1.5, close: 1, bounceOpen: 0.35, bounceClose: 0.3 },
   max: { open: 5, close: 4.2, bounceOpen: 0.12, bounceClose: 0.1 },
 } as const
 

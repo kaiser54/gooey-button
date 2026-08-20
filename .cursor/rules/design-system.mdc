@@ -1,0 +1,22 @@
+---
+description: Interactions design system — tokens, motion, and morph rules
+alwaysApply: true
+---
+
+# Design system
+
+Tokens live in `src/design-system/theme.css` (`@theme`) and `src/design-system/motion.ts`. Use them; do not introduce new hex, springs, or typefaces.
+
+- **Color:** `canvas` / `well` are white. Morph pills use `pill` + `stroke` + `--filter-lift` so they read on the card. `ink` / `mute` / `control` type, `danger` the only accent.
+- **Type:** SF Pro Display for the page title (`font-display`, `tracking-display`); SF Pro Text everywhere else (`font-sans`).
+- **Chrome:** Tailwind utilities. Morph geometry stays in `src/morph.css` and reads theme variables.
+- **Motion:** springs from `SPEED` + `useSlowMotion().scale`. Press uses `MOTION.pressDuration`. Honor `prefers-reduced-motion` with `MOTION.reducedDuration` (no bounce). Never `transition: all`. Animate `transform` / `opacity` only.
+- **Feel:** feedback on pointer-down (`MOTION.pressScale`). Interruptible springs from the live value. Elevate morphs with `--filter-lift`, not a gray well.
+
+```tsx
+// ✅
+<div className="rounded-well bg-well shadow-well text-ink" />
+
+// ❌
+<div style={{ background: "#eee", borderRadius: 16 }} />
+```

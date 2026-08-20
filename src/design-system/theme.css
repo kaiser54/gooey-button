@@ -1,0 +1,63 @@
+@theme {
+  --font-sans: "SF Pro Text", "SF Pro Display", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "SF Pro Display", "SF Pro Text", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --color-canvas: #ffffff;
+  --color-well: #ffffff;
+  --color-ink: #1d1d1f;
+  --color-mute: #6e6e73;
+  --color-control: #1d1d1f;
+  --color-danger: #e81111;
+  --color-hint: #86868b;
+  --color-pill: #ffffff;
+  --color-line: #d2d2d7;
+  --color-stroke: rgb(29 29 31 / 18%);
+  --color-chip: rgb(232 17 17 / 12%);
+  --color-track: #e8e8ed;
+
+  --radius-well: 1rem;
+  --radius-pill: 999px;
+
+  --shadow-well:
+    0 0 0 6px rgb(29 29 31 / 3%), 0 0 0.5px 1px rgb(29 29 31 / 8%);
+  --shadow-lift:
+    0 1px 1px rgb(29 29 31 / 4%), 0 8px 20px rgb(29 29 31 / 8%);
+  --shadow-thumb: 0 1px 2px rgb(29 29 31 / 18%);
+
+  --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
+
+  --duration-press: 120ms;
+  --duration-switch: 140ms;
+  --duration-reduced: 200ms;
+
+  --tracking-display: -0.01em;
+
+  --spacing-control: 3.5rem;
+  --spacing-cluster: 1rem;
+}
+
+@utility duration-slow {
+  transition-duration: calc(var(--duration-switch) * var(--slow-scale, 1));
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100dvh;
+  }
+
+  body {
+    @apply m-0 bg-canvas font-sans text-ink antialiased;
+    touch-action: manipulation;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}

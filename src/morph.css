@@ -1,0 +1,293 @@
+.goo-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.cluster {
+  position: relative;
+  flex-shrink: 0;
+  height: var(--spacing-control);
+  overflow: visible;
+}
+
+.gooey {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  filter: url("#goo") var(--filter-lift);
+}
+
+.gooey-flat {
+  filter: var(--filter-lift);
+}
+
+.blob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: var(--spacing-control);
+  border-radius: var(--radius-pill);
+  background: var(--color-pill);
+  border: 1px solid var(--color-stroke);
+  transform-origin: center;
+}
+
+.blob-cancel,
+.hit-cancel {
+  transform-origin: left center;
+}
+
+.gooey-search {
+  filter: url("#goo-search") var(--filter-lift);
+}
+
+.gooey-search.gooey-flat {
+  filter: var(--filter-lift);
+}
+
+.hits {
+  position: absolute;
+  inset: 0;
+}
+
+.hit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: var(--spacing-control);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.hit:focus {
+  outline: none;
+}
+
+.hit:focus-visible {
+  outline: 2px solid var(--color-control);
+  outline-offset: 4px;
+}
+
+.flow-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.hit-blur {
+  width: 100%;
+  height: 100%;
+}
+
+.hit-clip {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+}
+
+.hit-content {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.hit-delete,
+.hit-confirm {
+  color: var(--color-danger);
+}
+
+.hit-cancel,
+.hit-search,
+.hit-close {
+  color: var(--color-control);
+}
+
+.hit-close {
+  overflow: hidden;
+}
+
+.hit-field {
+  color: var(--color-control);
+  cursor: text;
+  overflow: hidden;
+}
+
+.search-icon-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--spacing-control);
+  height: var(--spacing-control);
+  pointer-events: none;
+}
+
+.search-field-clip {
+  justify-items: start;
+  align-items: center;
+  padding-left: var(--spacing-control);
+}
+
+.search-placeholder {
+  grid-area: 1 / 1;
+  justify-content: start;
+  padding-right: 1.15rem;
+  color: var(--color-hint);
+  pointer-events: none;
+}
+
+.search-input {
+  grid-area: 1 / 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 1.15rem 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-control);
+  font: inherit;
+  caret-color: var(--color-control);
+  outline: none;
+  appearance: none;
+}
+
+.search-input::placeholder {
+  color: transparent;
+}
+
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  appearance: none;
+}
+
+.search-glyph {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hit-tabs {
+  cursor: default;
+  overflow: hidden;
+}
+
+.tabs-inner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  height: 100%;
+  padding-block: 6px;
+  padding-inline: 8px;
+  box-sizing: border-box;
+}
+
+.tab {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-control);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  height: 100%;
+  gap: 0.45rem;
+  padding: 0 1.15rem;
+  border-radius: inherit;
+}
+
+.tab-chip {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-chip);
+  pointer-events: none;
+}
+
+.tab-label > :not(.tab-chip) {
+  position: relative;
+  z-index: 1;
+}
+
+.tab:focus {
+  outline: none;
+}
+
+.tab:focus-visible .tab-label {
+  box-shadow: inset 0 0 0 1.5px var(--color-control);
+}
+
+.tab-on {
+  color: var(--color-danger);
+}
+
+.tab-glyph {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: currentColor;
+}
+
+.trash-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gooey {
+    filter: var(--filter-lift);
+  }
+}

@@ -1,4 +1,5 @@
 import { DeleteMorph } from "./DeleteMorph"
+import { HoldMorph } from "./HoldMorph"
 import { SearchMorph } from "./SearchMorph"
 import { SlowMotionToggle } from "./slow-motion"
 import { SkipLink, Well } from "./ui"
@@ -6,6 +7,7 @@ import { SkipLink, Well } from "./ui"
 const ITEMS = [
   { id: "delete", node: <DeleteMorph /> },
   { id: "search", node: <SearchMorph /> },
+  { id: "hold", node: <HoldMorph /> },
 ] as const
 
 function App() {

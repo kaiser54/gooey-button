@@ -48,6 +48,14 @@
   filter: var(--filter-lift);
 }
 
+.gooey-hold {
+  filter: url("#goo-hold") var(--filter-lift);
+}
+
+.gooey-hold.gooey-flat {
+  filter: var(--filter-lift);
+}
+
 .hits {
   position: absolute;
   inset: 0;
@@ -300,6 +308,88 @@
   stroke-width: 1.85;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.hold-scene {
+  width: max-content;
+}
+
+.hold-sizer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: var(--spacing-control);
+  padding: 0 1.35rem;
+  visibility: hidden;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.hold-scene .blob,
+.hold-hit {
+  width: 100%;
+}
+
+.hold-scene .blob {
+  overflow: hidden;
+}
+
+.hold-hit {
+  display: grid;
+  place-items: stretch;
+  overflow: hidden;
+  color: var(--color-control);
+}
+
+.hold-layer {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  padding: 0 1.35rem;
+  box-sizing: border-box;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hold-layer .trash-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.hold-fill,
+.hold-ink {
+  pointer-events: none;
+  clip-path: inset(0 100% 0 0);
+  transition-property: clip-path;
+  transition-duration: var(--hold-release, 0.2s);
+  transition-timing-function: var(--ease-out-quart);
+}
+
+.hold-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-chip);
+}
+
+.hold-ink {
+  z-index: 1;
+  color: var(--color-danger);
+}
+
+.hold-scene[data-holding] .hold-fill,
+.hold-scene[data-holding] .hold-ink {
+  clip-path: inset(0 0 0 0);
+  transition-duration: var(--hold-duration, 1.6s);
+  transition-timing-function: linear;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -28,7 +28,7 @@
 
   --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
 
-  --duration-press: 120ms;
+  --duration-press: 320ms;
   --duration-switch: 140ms;
   --duration-reduced: 200ms;
 

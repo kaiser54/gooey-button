@@ -13,7 +13,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react"
 import { CONTROL, MOTION } from "./design-system"
-import { mix, SPEED, useSlowMotion } from "./slow-motion"
+import { mix, SPEED, SLOW_SCALE, useSlowMotion } from "./slow-motion"
 
 const SIZE = CONTROL.size
 const PILL_W = 156
@@ -24,7 +24,18 @@ const IDLE_X = (CLUSTER_OPEN - SIZE) / 2
 const CANCEL_SCALE_FROM = 0.3
 const TRAVEL = TARGET_X - IDLE_X
 const CANCEL_DELAY = MOTION.cancelDelay
+const HOVER_OUT = MOTION.hoverScale
 const PRESS_IN = MOTION.pressScale
+
+const DELETE_SPEED = {
+  min: { open: 1.1, close: 0.8, bounceOpen: 0.35, bounceClose: 0.3 },
+  max: {
+    open: 1.1 * SLOW_SCALE,
+    close: 0.8 * SLOW_SCALE,
+    bounceOpen: SPEED.max.bounceOpen,
+    bounceClose: SPEED.max.bounceClose,
+  },
+}
 
 function clamp01(value: number) {
   return value < 0 ? 0 : value > 1 ? 1 : value
@@ -66,6 +77,9 @@ export function DeleteMorph() {
   const [pressed, setPressed] = useState<"delete" | "confirm" | "cancel" | null>(
     null,
   )
+  const [hovered, setHovered] = useState<"delete" | "confirm" | "cancel" | null>(
+    null,
+  )
   const reduceMotion = useReducedMotion()
   const deleteRef = useRef<HTMLButtonElement>(null)
   const confirmRef = useRef<HTMLButtonElement>(null)
@@ -91,18 +105,19 @@ export function DeleteMorph() {
 
   const springOpen: Transition = {
     type: "spring",
-    duration: mix(SPEED.min.open, SPEED.max.open, speedT),
-    bounce: mix(SPEED.min.bounceOpen, SPEED.max.bounceOpen, speedT),
+    duration: mix(DELETE_SPEED.min.open, DELETE_SPEED.max.open, speedT),
+    bounce: mix(DELETE_SPEED.min.bounceOpen, DELETE_SPEED.max.bounceOpen, speedT),
   }
   const springClose: Transition = {
     type: "spring",
-    duration: mix(SPEED.min.close, SPEED.max.close, speedT),
-    bounce: mix(SPEED.min.bounceClose, SPEED.max.bounceClose, speedT),
+    duration: mix(DELETE_SPEED.min.close, DELETE_SPEED.max.close, speedT),
+    bounce: mix(DELETE_SPEED.min.bounceClose, DELETE_SPEED.max.bounceClose, speedT),
   }
   const transition = reduceMotion ? reduced : open ? springOpen : springClose
   const press: Transition = {
+    type: "spring",
     duration: MOTION.pressDuration * scale,
-    ease: MOTION.ease,
+    bounce: MOTION.chipBounce,
   }
   const cancelDelay = open ? CANCEL_DELAY * scale : 0
   const layoutTransition: Transition = reduceMotion
@@ -141,7 +156,11 @@ export function DeleteMorph() {
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false)
+      if (event.key === "Escape") {
+        setHovered(null)
+        setPressed(null)
+        setOpen(false)
+      }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
@@ -149,13 +168,23 @@ export function DeleteMorph() {
 
   const close = () => {
     setPressed(null)
+    setHovered(null)
     setOpen(false)
   }
-  const pressScale = (key: "delete" | "confirm" | "cancel") =>
-    pressed === key ? PRESS_IN : 1
-  const cancelScale = (open ? 1 : CANCEL_SCALE_FROM) * pressScale("cancel")
+  const feedbackScale = (key: "delete" | "confirm" | "cancel") => {
+    if (pressed === key) return PRESS_IN
+    if (key !== "cancel" && hovered === key) return HOVER_OUT
+    return 1
+  }
+  const cancelScale =
+    (open ? 1 : CANCEL_SCALE_FROM) * (pressed === "cancel" ? PRESS_IN : 1)
 
   const bindPress = (key: "delete" | "confirm" | "cancel") => ({
+    onPointerEnter: (event: ReactPointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType !== "mouse" && event.pointerType !== "pen") return
+      setHovered(key)
+    },
+    onPointerLeave: () => setHovered(null),
     onPointerDown: (event: ReactPointerEvent<HTMLButtonElement>) => {
       event.currentTarget.setPointerCapture(event.pointerId)
       setPressed(key)
@@ -199,7 +228,7 @@ export function DeleteMorph() {
           animate={{
             width: open ? PILL_W : SIZE,
             x: open ? 0 : IDLE_X,
-            scale: pressScale(open ? "confirm" : "delete"),
+            scale: feedbackScale(open ? "confirm" : "delete"),
           }}
           transition={layoutTransition}
         />
@@ -231,7 +260,7 @@ export function DeleteMorph() {
           animate={{
             width: open ? PILL_W : SIZE,
             x: open ? 0 : IDLE_X,
-            scale: pressScale("delete"),
+            scale: feedbackScale("delete"),
           }}
           transition={layoutTransition}
           style={{ pointerEvents: open ? "none" : "auto" }}
@@ -239,6 +268,7 @@ export function DeleteMorph() {
           onClick={(event) => {
             openedByPointer.current = event.detail > 0
             setPressed(null)
+            setHovered(null)
             setOpen(true)
           }}
         />
@@ -253,7 +283,7 @@ export function DeleteMorph() {
           animate={{
             width: open ? PILL_W : SIZE,
             x: open ? 0 : IDLE_X,
-            scale: pressScale("confirm"),
+            scale: feedbackScale("confirm"),
           }}
           transition={layoutTransition}
           style={{ pointerEvents: open ? "auto" : "none" }}
@@ -263,6 +293,11 @@ export function DeleteMorph() {
           <motion.span
             className="flow-icon"
             aria-hidden="true"
+            initial={false}
+            animate={{
+              scale: open ? 1 : pressed === "delete" ? PRESS_IN : 1,
+            }}
+            transition={press}
             style={{ filter: iconFilter, opacity: deleteOpacity }}
           >
             <TrashIcon />

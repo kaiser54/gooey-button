@@ -20,6 +20,7 @@ import { mix, SPEED, SLOW_SCALE, useSlowMotion } from "./slow-motion"
 const SIZE = CONTROL.size
 const GAP = CONTROL.gap
 const TABS_X = SIZE + GAP
+const HOVER_OUT = MOTION.hoverScale
 const PRESS_IN = MOTION.pressScale
 
 const SEARCH_SPEED = {
@@ -104,6 +105,7 @@ export function SearchMorph() {
   const [query, setQuery] = useState("")
   const [tab, setTab] = useState<TabId>("popular")
   const [pressed, setPressed] = useState<"search" | "close" | null>(null)
+  const [hovered, setHovered] = useState<"search" | "close" | null>(null)
   const reduceMotion = useReducedMotion()
   const searchRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -167,8 +169,9 @@ export function SearchMorph() {
   }
   const morphTransition = reduceMotion ? reduced : open ? springOpen : springClose
   const press: Transition = {
+    type: "spring",
     duration: MOTION.pressDuration * scale,
-    ease: MOTION.ease,
+    bounce: MOTION.chipBounce,
   }
   const chipTransition: Transition = reduceMotion
     ? reduced
@@ -237,6 +240,7 @@ export function SearchMorph() {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        setHovered(null)
         setMorphing(true)
         setOpen(false)
       }
@@ -247,13 +251,22 @@ export function SearchMorph() {
 
   const close = () => {
     setPressed(null)
+    setHovered(null)
     setMorphing(true)
     setOpen(false)
   }
-  const pressScale = (key: "search" | "close") =>
-    pressed === key ? PRESS_IN : 1
+  const feedbackScale = (key: "search" | "close") => {
+    if (pressed === key) return PRESS_IN
+    if (hovered === key) return HOVER_OUT
+    return 1
+  }
 
   const bindPress = (key: "search" | "close") => ({
+    onPointerEnter: (event: ReactPointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType !== "mouse" && event.pointerType !== "pen") return
+      setHovered(key)
+    },
+    onPointerLeave: () => setHovered(null),
     onPointerDown: (event: ReactPointerEvent<HTMLButtonElement>) => {
       event.currentTarget.setPointerCapture(event.pointerId)
       setPressed(key)
@@ -272,12 +285,12 @@ export function SearchMorph() {
   const searchLayout = {
     width: open ? pillW : SIZE,
     x: 0,
-    scale: open ? 1 : pressScale("search"),
+    scale: open ? 1 : feedbackScale("search"),
   }
   const tabsLayout = {
     width: open ? SIZE : pillW,
     x: open ? targetX : TABS_X,
-    scale: open ? pressScale("close") : 1,
+    scale: open ? feedbackScale("close") : 1,
   }
 
   return (
@@ -338,6 +351,7 @@ export function SearchMorph() {
           {...bindPress("search")}
           onClick={() => {
             setPressed(null)
+            setHovered(null)
             setMorphing(true)
             setOpen(true)
           }}
@@ -353,9 +367,16 @@ export function SearchMorph() {
           transition={layoutTransition}
           style={{ pointerEvents: open ? "auto" : "none" }}
         >
-          <span className="search-icon-slot">
+          <motion.span
+            className="search-icon-slot"
+            initial={false}
+            animate={{
+              scale: open ? 1 : pressed === "search" ? PRESS_IN : 1,
+            }}
+            transition={press}
+          >
             <SearchIcon />
-          </span>
+          </motion.span>
           <motion.div className="hit-blur" style={{ filter: contentFilter }}>
             <div className="hit-clip search-field-clip">
               <motion.span

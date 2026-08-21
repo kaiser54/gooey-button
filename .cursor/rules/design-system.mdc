@@ -11,7 +11,7 @@ Tokens live in `src/design-system/theme.css` (`@theme`) and `src/design-system/m
 - **Type:** SF Pro Display for the page title (`font-display`, `tracking-display`); SF Pro Text everywhere else (`font-sans`).
 - **Chrome:** Tailwind utilities. Morph geometry stays in `src/morph.css` and reads theme variables.
 - **Motion:** springs from `SPEED` + `useSlowMotion().scale`. Press uses `MOTION.pressDuration`. Honor `prefers-reduced-motion` with `MOTION.reducedDuration` (no bounce). Never `transition: all`. Animate `transform` / `opacity` only.
-- **Feel:** feedback on pointer-down (`MOTION.pressScale`). Interruptible springs from the live value. Elevate morphs with `--filter-lift`, not a gray well.
+- **Feel:** hover uses `MOTION.hoverScale`, press uses `MOTION.pressScale` on pointer-down (`MOTION.pressDuration`). Interruptible springs from the live value. Elevate morphs with `--filter-lift`, not a gray well.
 
 ```tsx
 // ✅

@@ -6,12 +6,15 @@ export const CONTROL = {
 }
 
 export const MOTION = {
-  pressScale: 0.97,
-  pressDuration: 0.12,
+  hoverScale: 1,
+  pressScale: 1.3,
+  pressDuration: 0.32,
   reducedDuration: 0.2,
   chipDuration: 0.3,
   chipBounce: 0.18,
   cancelDelay: 0.04,
+  holdDuration: 1.6,
+  holdRelease: 0.2,
   blur: 10,
   ease: EASE_OUT,
 } as const

@@ -7,7 +7,7 @@ export const CONTROL = {
 
 export const MOTION = {
   hoverScale: 1,
-  pressScale: 1.3,
+  pressScale: 1.15,
   pressDuration: 0.32,
   reducedDuration: 0.2,
   chipDuration: 0.3,

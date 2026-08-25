@@ -153,6 +153,9 @@ export function SearchMorph() {
   )
   const contentFilter = useTransform(blurPx, blurFilter)
   const fieldOpacity = useTransform(morph, [0, 0.18, 0.55, 1], [0, 0.2, 1, 1])
+  const caretColor = useTransform(morph, (t) =>
+    t >= 0.55 ? "var(--color-control)" : "transparent",
+  )
   const closeOpacity = useTransform(morph, [0, 0.18, 0.55, 1], [0, 0, 1, 1])
   const tabsOpacity = useTransform(morph, [0, 0.45, 0.82, 1], [1, 1, 0.15, 0])
   const tabsFilter = contentFilter
@@ -228,13 +231,24 @@ export function SearchMorph() {
   }, [tab])
 
   useEffect(() => {
-    if (open) {
-      wasOpen.current = true
-      inputRef.current?.focus()
-    } else if (wasOpen.current) {
-      searchRef.current?.focus()
+    if (!open) {
+      if (wasOpen.current) searchRef.current?.focus()
+      return
     }
-  }, [open])
+    wasOpen.current = true
+    const focusField = () =>
+      inputRef.current?.focus({ preventScroll: true })
+    if (reduceMotion || morph.get() >= 0.55) {
+      focusField()
+      return
+    }
+    let focused = false
+    return morph.on("change", (t) => {
+      if (focused || t < 0.55) return
+      focused = true
+      focusField()
+    })
+  }, [open, morph, reduceMotion])
 
   useEffect(() => {
     if (!open) return
@@ -385,10 +399,10 @@ export function SearchMorph() {
               >
                 Search
               </motion.span>
-              <input
+              <motion.input
                 ref={inputRef}
                 className="search-input"
-                type="search"
+                type="text"
                 name="q"
                 value={query}
                 placeholder="Search…"
@@ -397,6 +411,7 @@ export function SearchMorph() {
                 tabIndex={open ? 0 : -1}
                 aria-hidden={!open}
                 aria-label="Search"
+                style={{ caretColor }}
                 onChange={(event) => setQuery(event.target.value)}
               />
             </div>

@@ -154,13 +154,14 @@
 }
 
 .search-field-clip {
-  justify-items: start;
+  justify-items: stretch;
   align-items: center;
   padding-left: var(--spacing-control);
 }
 
 .search-placeholder {
   grid-area: 1 / 1;
+  justify-self: start;
   justify-content: start;
   padding-right: 1.15rem;
   color: var(--color-hint);
@@ -178,7 +179,8 @@
   background: transparent;
   color: var(--color-control);
   font: inherit;
-  caret-color: var(--color-control);
+  text-align: start;
+  caret-color: transparent;
   outline: none;
   appearance: none;
 }

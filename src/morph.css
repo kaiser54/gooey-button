@@ -31,7 +31,6 @@
   height: var(--spacing-control);
   border-radius: var(--radius-pill);
   background: var(--color-pill);
-  border: 1px solid var(--color-stroke);
   transform-origin: center;
 }
 
@@ -392,6 +391,49 @@
   clip-path: inset(0 0 0 0);
   transition-duration: var(--hold-duration, 1.6s);
   transition-timing-function: linear;
+}
+
+.scan-scene {
+  width: 17.5rem;
+  height: 7.25rem;
+}
+
+.scan-scene .blob {
+  width: 100%;
+  height: 100%;
+  border-radius: 2rem;
+}
+
+.scan-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0.875rem 0.875rem 0.875rem 1.35rem;
+  color: var(--color-control);
+  font-family: var(--font-sans);
+}
+
+.scan-copy {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+}
+
+.scan-qr {
+  display: block;
+  flex-shrink: 0;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 1.25rem;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

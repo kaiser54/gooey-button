@@ -1,11 +1,13 @@
 import { DeleteMorph } from "./DeleteMorph"
 import { HoldMorph } from "./HoldMorph"
+import { ScanQrCodeMorph } from "./ScanQrCodeMorph"
 import { SearchMorph } from "./SearchMorph"
 import { SlowMotionToggle } from "./slow-motion"
 import { SkipLink, Well } from "./ui"
 
 const ITEMS = [
   { id: "delete", node: <DeleteMorph /> },
+  { id: "scan-qr-code", node: <ScanQrCodeMorph /> },
   { id: "search", node: <SearchMorph /> },
   { id: "hold", node: <HoldMorph /> },
 ] as const

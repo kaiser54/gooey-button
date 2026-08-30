@@ -221,7 +221,7 @@ export function DeleteMorph() {
         </defs>
       </svg>
 
-      <div className={reduceMotion ? "gooey gooey-flat" : "gooey"}>
+      <div className="gooey [filter:url(#goo)_var(--filter-lift)] motion-reduce:[filter:var(--filter-lift)]">
         <motion.div
           className="blob"
           initial={false}
@@ -233,7 +233,7 @@ export function DeleteMorph() {
           transition={layoutTransition}
         />
         <motion.div
-          className="blob blob-cancel"
+          className="blob origin-left"
           initial={false}
           animate={{
             width: open ? PILL_W : SIZE,
@@ -251,7 +251,7 @@ export function DeleteMorph() {
         <motion.button
           ref={deleteRef}
           type="button"
-          className="hit hit-delete text-danger"
+          className="hit text-danger"
           aria-label="Delete"
           aria-expanded={open}
           tabIndex={open ? -1 : 0}
@@ -276,7 +276,7 @@ export function DeleteMorph() {
         <motion.button
           ref={confirmRef}
           type="button"
-          className="hit hit-confirm text-danger"
+          className="hit text-danger"
           tabIndex={open ? 0 : -1}
           aria-hidden={!open}
           initial={false}
@@ -291,7 +291,7 @@ export function DeleteMorph() {
           onClick={close}
         >
           <motion.span
-            className="flow-icon"
+            className="pointer-events-none absolute inset-0 grid place-items-center"
             aria-hidden="true"
             initial={false}
             animate={{
@@ -319,7 +319,7 @@ export function DeleteMorph() {
 
         <motion.button
           type="button"
-          className="hit hit-cancel"
+          className="hit origin-left text-control"
           tabIndex={open ? 0 : -1}
           aria-hidden={!open}
           initial={false}

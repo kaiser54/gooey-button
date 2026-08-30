@@ -39,7 +39,7 @@
 }
 
 @utility duration-slow {
-  transition-duration: calc(var(--duration-switch) * var(--slow-scale, 1));
+  --tw-duration: calc(var(--duration-switch) * var(--slow-scale, 1));
 }
 
 @layer base {

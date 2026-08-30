@@ -10,10 +10,15 @@ import { useSlowMotion } from "./slow-motion"
 const HOVER_OUT = MOTION.hoverScale
 const PRESS_IN = MOTION.pressScale
 
+const LAYER =
+  "flex h-full w-full items-center justify-center gap-2 px-[1.35rem] leading-none whitespace-nowrap [grid-area:1/1]"
+const CLIP =
+  "pointer-events-none transition-[clip-path] ease-out-quart [clip-path:inset(0_100%_0_0)] duration-[var(--hold-release,0.2s)] group-data-holding:ease-linear group-data-holding:[clip-path:inset(0_0_0_0)] group-data-holding:duration-[var(--hold-duration,1.6s)]"
+
 function TrashIcon() {
   return (
     <svg
-      className="trash-icon"
+      className="trash-icon block shrink-0"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       aria-hidden="true"
@@ -93,7 +98,7 @@ export function HoldMorph() {
 
   return (
     <div
-      className="cluster hold-scene"
+      className="cluster group w-max"
       data-holding={holding || undefined}
       style={{
         ["--hold-duration" as string]: `${MOTION.holdDuration * scale}s`,
@@ -102,7 +107,10 @@ export function HoldMorph() {
         }s`,
       }}
     >
-      <span className="hold-sizer" aria-hidden="true">
+      <span
+        className="pointer-events-none invisible inline-flex h-control items-center gap-2 px-[1.35rem] font-sans text-[1.0625rem] leading-none font-semibold whitespace-nowrap"
+        aria-hidden="true"
+      >
         <HoldLabel />
       </span>
 
@@ -127,21 +135,24 @@ export function HoldMorph() {
         </defs>
       </svg>
 
-      <div className={reduceMotion ? "gooey gooey-hold gooey-flat" : "gooey gooey-hold"}>
+      <div className="gooey [filter:url(#goo-hold)_var(--filter-lift)] motion-reduce:[filter:var(--filter-lift)]">
         <motion.div
-          className="blob"
+          className="blob w-full overflow-hidden"
           initial={false}
           animate={layout}
           transition={press}
         >
-          <span className="hold-fill" aria-hidden="true" />
+          <span
+            className={`absolute inset-0 rounded-pill bg-chip ${CLIP}`}
+            aria-hidden="true"
+          />
         </motion.div>
       </div>
 
       <div className="hits">
         <motion.button
           type="button"
-          className="hit hold-hit"
+          className="hit grid w-full place-items-stretch overflow-hidden text-control"
           aria-label="Hold to delete"
           aria-busy={holding}
           initial={false}
@@ -149,10 +160,10 @@ export function HoldMorph() {
           transition={press}
           {...bindPress}
         >
-          <span className="hold-layer" aria-hidden="true">
+          <span className={LAYER} aria-hidden="true">
             <HoldLabel />
           </span>
-          <span className="hold-layer hold-ink" aria-hidden="true">
+          <span className={`z-[1] text-danger ${LAYER} ${CLIP}`} aria-hidden="true">
             <HoldLabel />
           </span>
         </motion.button>

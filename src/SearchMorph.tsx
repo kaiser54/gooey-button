@@ -53,10 +53,17 @@ const reduced: Transition = {
 
 const instant: Transition = { duration: 0 }
 
+const GLYPH =
+  "size-[1.35rem] fill-none stroke-current [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:2.1]"
+const TAB =
+  "group relative z-0 m-0 flex h-full flex-none items-stretch rounded-pill border-0 bg-transparent p-0 font-sans text-[0.9375rem] font-semibold whitespace-nowrap [-webkit-tap-highlight-color:transparent] focus:outline-none"
+const TAB_LABEL =
+  "relative flex h-full items-center justify-center gap-[0.45rem] self-stretch rounded-pill px-[1.15rem] group-focus-visible:shadow-[inset_0_0_0_1.5px_var(--color-control)]"
+
 function SearchIcon() {
   return (
     <svg
-      className="search-glyph"
+      className={GLYPH}
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"
@@ -70,7 +77,7 @@ function SearchIcon() {
 function CloseIcon() {
   return (
     <svg
-      className="search-glyph"
+      className={GLYPH}
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"
@@ -308,7 +315,7 @@ export function SearchMorph() {
   }
 
   return (
-    <div className="cluster search-scene" style={{ width: sceneW }}>
+    <div className="cluster" style={{ width: sceneW }}>
       <svg className="goo-defs" aria-hidden="true" focusable="false">
         <defs>
           <filter
@@ -330,7 +337,7 @@ export function SearchMorph() {
         </defs>
       </svg>
 
-      <div className={reduceMotion ? "gooey gooey-search gooey-flat" : "gooey gooey-search"}>
+      <div className="gooey [filter:url(#goo-search)_var(--filter-lift)] motion-reduce:[filter:var(--filter-lift)]">
         <motion.div
           className="blob"
           initial={false}
@@ -353,7 +360,7 @@ export function SearchMorph() {
         <motion.button
           ref={searchRef}
           type="button"
-          className="hit hit-search"
+          className="hit text-control"
           aria-label="Search"
           aria-expanded={open}
           tabIndex={open ? -1 : 0}
@@ -372,7 +379,7 @@ export function SearchMorph() {
         />
 
         <motion.div
-          className="hit hit-field"
+          className="hit cursor-text overflow-hidden text-control"
           initial={false}
           animate={{
             width: open ? pillW : SIZE,
@@ -382,7 +389,7 @@ export function SearchMorph() {
           style={{ pointerEvents: open ? "auto" : "none" }}
         >
           <motion.span
-            className="search-icon-slot"
+            className="pointer-events-none absolute top-0 left-0 z-[1] grid size-control place-items-center"
             initial={false}
             animate={{
               scale: open ? 1 : pressed === "search" ? PRESS_IN : 1,
@@ -392,16 +399,16 @@ export function SearchMorph() {
             <SearchIcon />
           </motion.span>
           <motion.div className="hit-blur" style={{ filter: contentFilter }}>
-            <div className="hit-clip search-field-clip">
+            <div className="hit-clip items-center justify-items-stretch pl-control">
               <motion.span
-                className="hit-content search-placeholder"
+                className="hit-content justify-start justify-self-start pr-[1.15rem] text-hint"
                 style={{ opacity: query ? 0 : fieldOpacity }}
               >
                 Search
               </motion.span>
               <motion.input
                 ref={inputRef}
-                className="search-input"
+                className="m-0 h-full w-full min-w-0 appearance-none border-0 bg-transparent py-0 pr-[1.15rem] pl-0 text-start text-control caret-transparent outline-none [font:inherit] [grid-area:1/1] placeholder:text-transparent"
                 type="text"
                 name="q"
                 value={query}
@@ -419,7 +426,7 @@ export function SearchMorph() {
         </motion.div>
 
         <motion.div
-          className="hit hit-tabs"
+          className="hit cursor-default overflow-hidden"
           initial={false}
           animate={{
             width: open ? SIZE : pillW,
@@ -433,10 +440,13 @@ export function SearchMorph() {
             <div className="hit-clip">
               <motion.div
                 ref={tabsInnerRef}
-                className="tabs-inner"
+                className="absolute top-0 right-0 bottom-0 flex h-full w-max items-stretch px-2 py-1.5"
                 style={{ opacity: tabsOpacity }}
               >
-                <div ref={tabsTrackRef} className="tabs-track">
+                <div
+                  ref={tabsTrackRef}
+                  className="relative flex h-full w-max items-stretch"
+                >
                   {TABS.map(({ id, label, Icon }) => (
                     <button
                       key={id}
@@ -444,12 +454,12 @@ export function SearchMorph() {
                         tabRefs.current[id] = node
                       }}
                       type="button"
-                      className="tab"
+                      className={`${TAB} cursor-pointer text-control`}
                       tabIndex={open ? -1 : 0}
                       aria-pressed={tab === id}
                       onClick={() => setTab(id)}
                     >
-                      <span className="tab-label">
+                      <span className={TAB_LABEL}>
                         <Icon />
                         {label}
                       </span>
@@ -457,21 +467,24 @@ export function SearchMorph() {
                   ))}
                   {chip && (
                     <motion.div
-                      className="tabs-clip"
+                      className="pointer-events-none absolute top-0 bottom-0 left-0 z-[2] overflow-hidden rounded-pill bg-chip"
                       initial={false}
                       animate={{ x: chip.x, width: chip.width }}
                       transition={chipTransition}
                       aria-hidden="true"
                     >
                       <motion.div
-                        className="tabs-ink"
+                        className="flex h-full w-max items-stretch text-danger"
                         initial={false}
                         animate={{ x: -chip.x }}
                         transition={chipTransition}
                       >
                         {TABS.map(({ id, label, Icon }) => (
-                          <div key={id} className="tab">
-                            <span className="tab-label">
+                          <div
+                            key={id}
+                            className={`${TAB} cursor-default text-inherit`}
+                          >
+                            <span className={TAB_LABEL}>
                               <Icon />
                               {label}
                             </span>
@@ -488,7 +501,7 @@ export function SearchMorph() {
 
         <motion.button
           type="button"
-          className="hit hit-close"
+          className="hit overflow-hidden text-control"
           aria-label="Close search"
           tabIndex={open ? 0 : -1}
           aria-hidden={!open}

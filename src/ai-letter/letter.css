@@ -1,0 +1,51 @@
+/* Quill ships its own chrome; this rebinds the parts we keep to theme tokens.
+   Scoped to .letter-editor so nothing leaks into the morph studies. */
+
+@layer components {
+  .letter-editor .ql-container {
+    box-sizing: border-box;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+  }
+
+  .letter-editor .ql-editor {
+    height: 100%;
+    padding: 1.25rem 1.5rem;
+    color: var(--color-ink);
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    tab-size: 4;
+    text-align: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    outline: none;
+    overflow-y: auto;
+  }
+
+  .letter-editor .ql-editor > * {
+    cursor: text;
+  }
+
+  .letter-editor .ql-editor p + p {
+    margin-top: 0.85rem;
+  }
+
+  .letter-editor .ql-editor.ql-blank::before {
+    left: 1.5rem;
+    right: 1.5rem;
+    color: var(--color-hint);
+    font-style: normal;
+    content: attr(data-placeholder);
+    pointer-events: none;
+    position: absolute;
+  }
+
+  /* The toolbar redraws the selection itself once the editor blurs, so the
+     native highlight is toned down to avoid doubling up. */
+  .letter-editor .ql-editor ::selection {
+    background: color-mix(in srgb, var(--color-control) 15%, transparent);
+  }
+}

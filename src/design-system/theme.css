@@ -11,6 +11,12 @@
   --color-control: #1d1d1f;
   --color-danger: #e81111;
   --color-hint: #86868b;
+  --color-quiet: #a4a4a4;
+  --color-plan: #7271f1;
+  --color-flare: #ff5855;
+  --color-violet: #7e75f6;
+  --color-amber: #e99444;
+  --color-mark: #363636;
   --color-pill: #ffffff;
   --color-line: #d2d2d7;
   --color-stroke: rgb(29 29 31 / 18%);
